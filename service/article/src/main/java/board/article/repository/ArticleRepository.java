@@ -1,8 +1,29 @@
 package board.article.repository;
 
 import board.article.entity.Article;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
+    @Query( // pageable을 사용하면 최적화 쿼리를 구성하기 어려워 native query 사용
+            value = "select article.article_id, article.title, article.content, article.board_id, " +
+                    "article.writer_id, article.created_at, article.modified_at " +
+                    "from (" +
+                    "   select article_id from article " +
+                    "   where board_id = :boardId " +
+                    "   order by article_id desc " +
+                    "   limit :limit offset :offset " +
+                    ") t left join article on t.article_id = article.article_id ",
+            nativeQuery = true
+    )
+    List<Article> findAll(
+            @Param("boardId") Long boardId,
+            @Param("offset") Long offset,
+            @Param("limit") Long limit
+    );
 }
