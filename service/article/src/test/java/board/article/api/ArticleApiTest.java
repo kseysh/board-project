@@ -9,8 +9,10 @@ import board.article.service.request.ArticleUpdateRequest;
 import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
 
 @Slf4j
@@ -83,6 +85,32 @@ class ArticleApiTest {
                 .body(ArticlePageResponse.class);
         assertEquals(pageSize, response.getArticles().size());
         for (ArticleResponse article : response.getArticles()) {
+            log.info("articleId = " + article.getArticleId());
+        }
+    }
+
+    @Test
+    void readAllWithInfiniteScrollTest() {
+        List<ArticleResponse> firstPageArticles = restClient.get()
+                .uri("/v1/articles/infinite-scroll?boardId=1&pageSize=5")
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+
+        log.info("first page articles");
+        for (ArticleResponse article : firstPageArticles) {
+            log.info("articleId = " + article.getArticleId());
+        }
+
+        Long lastArticleId = firstPageArticles.get(firstPageArticles.size()-1).getArticleId();
+        List<ArticleResponse> nextPageArticles = restClient.get()
+                .uri("/v1/articles/infinite-scroll?boardId=1&pageSize=5&lastArticleId=%s".formatted(lastArticleId))
+                .retrieve()
+                .body(new ParameterizedTypeReference<>() {
+                });
+
+        log.info("next page articles");
+        for (ArticleResponse article : nextPageArticles) {
             log.info("articleId = " + article.getArticleId());
         }
     }
