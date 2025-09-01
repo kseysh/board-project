@@ -5,6 +5,7 @@ import board.article.service.request.ArticleCreateRequest;
 import board.article.service.request.ArticleUpdateRequest;
 import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
+import board.article.service.response.PreviousArticleIdResponse;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,14 @@ public class ArticleController {
             @RequestParam("pageSize") Long pageSize
     ) {
         return articleService.readAll(boardId, page, pageSize);
+    }
+
+    @GetMapping("/v1/articles/previous-id")
+    public PreviousArticleIdResponse findPreviousArticleId(
+            @RequestParam("boardId") Long boardId,
+            @RequestParam("articleId") Long articleId
+    ) {
+        return articleService.findPreviousArticleId(boardId, articleId);
     }
 
     @PostMapping("/v1/articles")

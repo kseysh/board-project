@@ -8,6 +8,7 @@ import board.article.service.request.ArticleCreateRequest;
 import board.article.service.request.ArticleUpdateRequest;
 import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
+import board.article.service.response.PreviousArticleIdResponse;
 import board.common.snowflake.Snowflake;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -62,5 +63,9 @@ public class ArticleService {
                 articleRepository.findAllWithInfiniteScroll(boardId, pageSize, lastArticleId.get()) :
                 articleRepository.findAllWithInfiniteScroll(boardId, pageSize);
         return articles.stream().map(ArticleResponse::from).toList();
+    }
+
+    public PreviousArticleIdResponse findPreviousArticleId(Long boardId, Long articleId) {
+        return PreviousArticleIdResponse.of(articleRepository.findPreviousId(boardId, articleId));
     }
 }

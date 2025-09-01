@@ -61,4 +61,12 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             @Param("lastArticleId") Long lastArticleId
     );
 
+    @Query(
+            value = "select article.article_id " +
+                    "from article " +
+                    "where board_id = :boardId and article_id > :articleId " +
+                    "order by article_id desc limit 1",
+            nativeQuery = true
+    )
+    Long findPreviousId(Long boardId, Long articleId);
 }
