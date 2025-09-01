@@ -1,9 +1,12 @@
 package board.article.service;
 
+import static board.article.entity.ArticleConstant.MOVABLE_PAGE_COUNT;
+
 import board.article.entity.Article;
 import board.article.repository.ArticleRepository;
 import board.article.service.request.ArticleCreateRequest;
 import board.article.service.request.ArticleUpdateRequest;
+import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
 import board.common.snowflake.Snowflake;
 import jakarta.transaction.Transactional;
@@ -39,5 +42,16 @@ public class ArticleService {
         articleRepository.deleteById(articleId);
     }
 
-
+    public ArticlePageResponse readAll(Long boardId, Long page, Long pageSize) {
+        Long offset = (page - 1) * pageSize;
+        return ArticlePageResponse.of(
+                articleRepository.findAll(boardId, offset, pageSize).stream()
+                        .map(ArticleResponse::from)
+                        .toList(),
+                articleRepository.count(
+                        boardId,
+                        PageLimitCalculator.calculatePageLimit(page, pageSize, MOVABLE_PAGE_COUNT)
+                )
+        );
+    }
 }
