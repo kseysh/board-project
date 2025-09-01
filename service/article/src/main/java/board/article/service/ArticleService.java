@@ -10,6 +10,8 @@ import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
 import board.common.snowflake.Snowflake;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -53,5 +55,12 @@ public class ArticleService {
                         PageLimitCalculator.calculatePageLimit(page, pageSize, MOVABLE_PAGE_COUNT)
                 )
         );
+    }
+
+    public List<ArticleResponse> readAllWithInfiniteScroll(Long boardId, Long pageSize, Optional<Long> lastArticleId) {
+        List<Article> articles = lastArticleId.isPresent() ?
+                articleRepository.findAllWithInfiniteScroll(boardId, pageSize, lastArticleId.get()) :
+                articleRepository.findAllWithInfiniteScroll(boardId, pageSize);
+        return articles.stream().map(ArticleResponse::from).toList();
     }
 }
