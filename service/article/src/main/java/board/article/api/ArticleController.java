@@ -39,12 +39,12 @@ public class ArticleController {
         return articleService.readAll(boardId, page, pageSize);
     }
 
-    @GetMapping("/v1/articles/previous-id")
-    public PreviousArticleIdResponse findPreviousArticleId(
+    @GetMapping("/v1/articles/recent-id")
+    public PreviousArticleIdResponse findNextArticleIdAfter(
             @RequestParam("boardId") Long boardId,
             @RequestParam("articleId") Long articleId
     ) {
-        return articleService.findPreviousArticleId(boardId, articleId);
+        return articleService.findNextArticleIdAfter(boardId, articleId);
     }
 
     @PostMapping("/v1/articles")

@@ -10,11 +10,11 @@ import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
 import board.article.service.response.PreviousArticleIdResponse;
 import board.common.snowflake.Snowflake;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +65,7 @@ public class ArticleService {
         return articles.stream().map(ArticleResponse::from).toList();
     }
 
-    public PreviousArticleIdResponse findPreviousArticleId(Long boardId, Long articleId) {
-        return PreviousArticleIdResponse.of(articleRepository.findPreviousId(boardId, articleId));
+    public PreviousArticleIdResponse findNextArticleIdAfter(Long boardId, Long articleId) {
+        return PreviousArticleIdResponse.of(articleRepository.findNextIdAfter(boardId, articleId));
     }
 }

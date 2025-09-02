@@ -68,5 +68,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
                     "order by article_id desc limit 1",
             nativeQuery = true
     )
-    Long findPreviousId(Long boardId, Long articleId);
+    Long findNextIdAfter(Long boardId, Long articleId);
 }
