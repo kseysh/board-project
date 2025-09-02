@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import board.article.service.request.ArticleUpdateRequest;
 import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
+import board.article.service.response.PreviousArticleIdResponse;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -113,5 +114,18 @@ class ArticleApiTest {
         for (ArticleResponse article : nextPageArticles) {
             log.info("articleId = " + article.getArticleId());
         }
+    }
+
+    @Test
+    void findNextArticleIdAfterTest() {
+        ArticleResponse previousArticle = create();
+        ArticleResponse recentArticle = create();
+
+        PreviousArticleIdResponse response = restClient.get()
+                .uri("v1/articles/recent-id?boardId=%s&articleId=%s"
+                        .formatted(previousArticle.getBoardId(),previousArticle.getArticleId()))
+                .retrieve()
+                .body(PreviousArticleIdResponse.class);
+        assertEquals(recentArticle.getArticleId(), response.getArticleId());
     }
 }
