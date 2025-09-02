@@ -1,19 +1,25 @@
-# Compiled class file
+# Compiled class file #
 *.class
 
-# Log file
+# Log file #
 *.log
 
-# Package Files #
+# IDE settings #
 .idea
+*.iml
+
+# Package Files #
 *.jar
 *.war
 
 # build #
 .gradle
 gradle
-
 build
+
+# Mac OS
+.DS_Store
+**/.DS_Store
 
 # secret #
 *.yml
