@@ -1,4 +1,4 @@
-package board.article.service;
+package board.common.page_calculator;
 
 import lombok.NoArgsConstructor;
 
