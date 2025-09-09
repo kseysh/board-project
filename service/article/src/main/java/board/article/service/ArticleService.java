@@ -9,6 +9,7 @@ import board.article.service.request.ArticleUpdateRequest;
 import board.article.service.response.ArticlePageResponse;
 import board.article.service.response.ArticleResponse;
 import board.article.service.response.PreviousArticleIdResponse;
+import board.common.page_calculator.PageLimitCalculator;
 import board.common.snowflake.Snowflake;
 import java.util.List;
 import java.util.Optional;
