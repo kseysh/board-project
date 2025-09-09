@@ -48,7 +48,6 @@ class DataInitializer {
                         i % 2 == 0 ? null : prev.getCommentId(),
                         1L,
                         1L
-
                 );
                 prev = comment;
                 entityManager.persist(comment);
@@ -59,7 +58,7 @@ class DataInitializer {
     @Test
     void truncate() {
         transactionTemplate.executeWithoutResult(status -> {
-            entityManager.createQuery("DELETE FROM Comment").executeUpdate(); // Article 엔티티의 모든 데이터를 삭제
+            entityManager.createQuery("DELETE FROM Comment").executeUpdate(); // Comment 엔티티의 모든 데이터를 삭제
         });
         System.out.println("Data truncated successfully.");
     }

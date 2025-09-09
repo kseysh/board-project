@@ -5,8 +5,11 @@ import static java.util.function.Predicate.not;
 import board.comment.entity.Comment;
 import board.comment.repository.CommentRepository;
 import board.comment.service.request.CommentCreateRequest;
+import board.comment.service.response.CommentPageResponse;
 import board.comment.service.response.CommentResponse;
+import board.common.page_calculator.PageLimitCalculator;
 import board.common.snowflake.Snowflake;
+import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +19,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CommentService {
+
     private final Snowflake snowflake = Snowflake.getInstance();
     private final CommentRepository commentRepository;
 
     @Transactional
-    public CommentResponse create(CommentCreateRequest request){
+    public CommentResponse create(CommentCreateRequest request) {
         Optional<Comment> parent = findParent(request);
         long commentId = snowflake.nextId();
         Comment newComment = commentRepository.save(
@@ -35,9 +39,9 @@ public class CommentService {
         return CommentResponse.from(newComment);
     }
 
-    private Optional<Comment> findParent(CommentCreateRequest request){
+    private Optional<Comment> findParent(CommentCreateRequest request) {
         Long parentCommentId = request.getParentCommentId();
-        if(parentCommentId == null){
+        if (parentCommentId == null) {
             return Optional.empty();
         }
         return commentRepository.findById(parentCommentId)
@@ -45,36 +49,56 @@ public class CommentService {
                 .filter(Comment::isRoot);
     }
 
-    public CommentResponse read(Long commentId){
+    public CommentResponse read(Long commentId) {
         return CommentResponse.from(commentRepository.findById(commentId).orElseThrow());
     }
 
     @Transactional
-    public void delete(Long commentId){
+    public void delete(Long commentId) {
         commentRepository.findById(commentId)
                 .filter(not(Comment::getDeleted))
                 .ifPresent(comment -> {
-                    if(hasChildren(comment)){
+                    if (hasChildren(comment)) {
                         comment.delete();
-                    }else{
+                    } else {
                         delete(comment);
                     }
                 });
     }
 
-    private boolean hasChildren(Comment comment){
+    private boolean hasChildren(Comment comment) {
         // 자기 자신과 자식은 parent_comment_id를 parent의 comment_id로 가지고 있다.
         return commentRepository.countBy(comment.getArticleId(), comment.getCommentId(), 2L) == 2L;
     }
 
-    private void delete(Comment comment){
+    private void delete(Comment comment) {
         commentRepository.delete(comment);
-        if (!comment.isRoot()){
+        if (!comment.isRoot()) {
             commentRepository.findById(comment.getParentCommentId())
                     .filter(Comment::getDeleted)
                     .filter(not(this::hasChildren))
                     .ifPresent(this::delete);
         }
+    }
+
+    public CommentPageResponse readAll(Long articleId, Long page, Long pageSize) {
+        return CommentPageResponse.of(
+                commentRepository.findAll(articleId, (page - 1) * pageSize, pageSize).stream()
+                        .map(CommentResponse::from)
+                        .toList(),
+                commentRepository.count(articleId, PageLimitCalculator.calculatePageLimit(page, pageSize, 10L))
+        );
+    }
+
+    public List<CommentResponse> readAllWithInfiniteScroll(
+            Long articleId, Long lastParentCommentId, Long lastCommentId, Long limit
+    ) {
+        List<Comment> comments = (lastParentCommentId == null || lastCommentId == null) ?
+                commentRepository.findAllWithInfiniteScroll(articleId, limit) :
+                commentRepository.findAllWithInfiniteScroll(articleId, lastParentCommentId, lastCommentId, limit);
+        return comments.stream()
+                .map(CommentResponse::from)
+                .toList();
     }
 
 }
