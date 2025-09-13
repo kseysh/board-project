@@ -1,15 +1,11 @@
 package board.like.entity;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Table(name = "article_like_count")
 @Getter
+@Entity
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ArticleLikeCount {
@@ -23,7 +19,6 @@ public class ArticleLikeCount {
         ArticleLikeCount articleLikeCount = new ArticleLikeCount();
         articleLikeCount.articleId = articleId;
         articleLikeCount.likeCount = likeCount;
-        articleLikeCount.version = 0L;
         return articleLikeCount;
     }
 
