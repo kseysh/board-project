@@ -61,12 +61,13 @@ class CommentApiV2Test {
     void delete(){
         // given
         CommentResponse parentComment = createComment(COMMENT_CREATE_REQUEST_V2_1);
+        Long parentCommentId = parentComment.getCommentId();
 
         // when
-        delete(parentComment.getCommentId());
+        delete(parentCommentId);
 
         // then
-        assertThrows(InternalServerError.class, () ->  read(parentComment.getCommentId()));
+        assertThrows(InternalServerError.class, () ->  read(parentCommentId));
     }
 
     void delete(Long commentId){
@@ -132,5 +133,30 @@ class CommentApiV2Test {
                 log.info("\tcommentId=%s".formatted(comment.getCommentId()));
             }
         }
+    }
+
+    @Test
+    void countTest() {
+        CommentCreateRequestV2 request = COMMENT_CREATE_REQUEST_V2_1;
+        CommentResponse commentResponse = createComment(request);
+
+        Long count1 = restClient.get()
+                .uri("/v2/comments/articles/{articleId}/count", request.getArticleId())
+                .retrieve()
+                .body(Long.class);
+        log.info("count1 = {}", count1);
+
+        restClient.delete()
+                .uri("/v2/comments/{commentId}", commentResponse.getCommentId())
+                .retrieve()
+                .toBodilessEntity();
+
+        Long count2 = restClient.get()
+                .uri("/v2/comments/articles/{articleId}/count", request.getArticleId())
+                .retrieve()
+                .body(Long.class);
+        log.info("count2 = {}", count2);
+
+        assertEquals(count1, count2 + 1L);
     }
 }
