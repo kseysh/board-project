@@ -12,6 +12,7 @@ import board.article.service.response.PreviousArticleIdResponse;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClient;
@@ -127,5 +128,29 @@ class ArticleApiTest {
                 .retrieve()
                 .body(PreviousArticleIdResponse.class);
         assertEquals(recentArticle.getArticleId(), response.getArticleId());
+    }
+
+    @Test
+    void countTest() {
+        ArticleResponse response = create();
+
+        Long count1 = restClient.get()
+                .uri("/v1/articles/boards/{boardId}/count", 1L)
+                .retrieve()
+                .body(Long.class);
+        log.info("count1 = " + count1);
+
+        restClient.delete()
+                .uri("/v1/articles/{articleId}", response.getArticleId())
+                .retrieve()
+                .toBodilessEntity();
+
+        Long count2 = restClient.get()
+                .uri("/v1/articles/boards/{boardId}/count", 1L)
+                .retrieve()
+                .body(Long.class);
+        log.info("count2 = " + count2);
+
+        Assertions.assertEquals(count1, count2 + 1L);
     }
 }
