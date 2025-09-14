@@ -2,6 +2,7 @@ package board.article.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import board.common.page_calculator.PageLimitCalculator;
 import org.junit.jupiter.api.Test;
 
 class PageLimitCalculatorTest {
